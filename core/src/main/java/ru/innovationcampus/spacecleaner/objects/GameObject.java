@@ -1,10 +1,11 @@
-package ru.innovationcampus.spacecleaner;
+package ru.innovationcampus.spacecleaner.objects;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
+import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.World;
 
@@ -13,10 +14,12 @@ public class GameObject {
     protected Texture texture;
     public static final float SCALE = 0.05f;
     public Body body;
+    short cBit;
 
-    public GameObject(String texturePath, int x, int y, int width, int height, World world) {
+    public GameObject(String texturePath, int x, int y, int width, int height, short cBit, World world) {
         this.width = width;
         this.height = height;
+        this.cBit = cBit;
 
         texture = new Texture(texturePath);
         body = createBody(x, y, world);
@@ -40,11 +43,14 @@ public class GameObject {
         fixtureDef.shape = circleShape; // устанавливаем коллайдер
         fixtureDef.density = 0.1f; // устанавливаем плотность тела
         fixtureDef.friction = 1f; // устанвливаем коэффициент трения
+        fixtureDef.filter.categoryBits = cBit;
 
-        body.createFixture(fixtureDef); // создаём fixture по описанному нами определению
+        Fixture f = body.createFixture(fixtureDef); // создаём fixture по описанному нами определению
+        f.setUserData(this);
         circleShape.dispose(); // так как коллайдер уже скопирован в fixutre, то circleShape может быть отчищена, чтобы не забивать оперативную память.
 
         body.setTransform(x * SCALE, y * SCALE, 0); // устанавливаем позицию тела по координатным осям и угол поворота
+
         return body;
     }
 
@@ -67,4 +73,6 @@ public class GameObject {
     public void dispose() {
         texture.dispose();
     }
+
+    public void hit() {}
 }

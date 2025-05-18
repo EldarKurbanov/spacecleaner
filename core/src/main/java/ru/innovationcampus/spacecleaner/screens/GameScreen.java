@@ -8,6 +8,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 
 import java.util.ArrayList;
 
+import ru.innovationcampus.spacecleaner.ContactManager;
 import ru.innovationcampus.spacecleaner.GameResources;
 import ru.innovationcampus.spacecleaner.GameSession;
 import ru.innovationcampus.spacecleaner.GameSettings;
@@ -22,11 +23,13 @@ public class GameScreen extends ScreenAdapter {
     GameSession gameSession;
     ArrayList<TrashObject> trashArray;
     ArrayList<BulletObject> bulletArray;
+    ContactManager contactManager;
 
     public GameScreen(Main main) {
         this.main = main;
         trashArray = new ArrayList<>();
         bulletArray = new ArrayList<>();
+        contactManager = new ContactManager(main.world);
     }
 
     @Override
@@ -70,6 +73,10 @@ public class GameScreen extends ScreenAdapter {
         updateTrash();
         updateBullets();
 
+        if (!shipObject.isAlive()) {
+            System.out.println("Game over!");
+        }
+
         draw();
     }
 
@@ -101,7 +108,7 @@ public class GameScreen extends ScreenAdapter {
 
     private void updateTrash() {
         for (int i = 0; i < trashArray.size(); i++) {
-            if (!trashArray.get(i).isInFrame()) {
+            if (!trashArray.get(i).isInFrame() || !trashArray.get(i).isAlive()) {
                 main.world.destroyBody(trashArray.get(i).body);
                 trashArray.remove(i--);
             }
