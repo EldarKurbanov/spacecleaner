@@ -12,6 +12,7 @@ import ru.innovationcampus.spacecleaner.GameResources;
 import ru.innovationcampus.spacecleaner.GameSession;
 import ru.innovationcampus.spacecleaner.GameSettings;
 import ru.innovationcampus.spacecleaner.Main;
+import ru.innovationcampus.spacecleaner.objects.BulletObject;
 import ru.innovationcampus.spacecleaner.objects.ShipObject;
 import ru.innovationcampus.spacecleaner.objects.TrashObject;
 
@@ -20,10 +21,12 @@ public class GameScreen extends ScreenAdapter {
     ShipObject shipObject;
     GameSession gameSession;
     ArrayList<TrashObject> trashArray;
+    ArrayList<BulletObject> bulletArray;
 
     public GameScreen(Main main) {
         this.main = main;
         trashArray = new ArrayList<>();
+        bulletArray = new ArrayList<>();
     }
 
     @Override
@@ -43,6 +46,7 @@ public class GameScreen extends ScreenAdapter {
         super.render(delta);
 
         main.stepWorld();
+
         if (gameSession.shouldSpawnTrash()) {
             TrashObject trashObject = new TrashObject(
                 GameSettings.TRASH_WIDTH, GameSettings.TRASH_HEIGHT,
@@ -52,8 +56,19 @@ public class GameScreen extends ScreenAdapter {
             trashArray.add(trashObject);
         }
 
+        if (shipObject.needToShoot()) {
+            BulletObject laserBullet = new BulletObject(
+                shipObject.getX(), shipObject.getY() + shipObject.height / 2,
+                GameSettings.BULLET_WIDTH, GameSettings.BULLET_HEIGHT,
+                GameResources.BULLET_IMG_PATH,
+                main.world
+            );
+            bulletArray.add(laserBullet);
+        }
+
         handleInput();
         updateTrash();
+        updateBullets();
 
         draw();
     }
@@ -73,6 +88,7 @@ public class GameScreen extends ScreenAdapter {
         main.batch.begin();
         shipObject.draw(main.batch);
         for (TrashObject trash : trashArray) trash.draw(main.batch);
+        for (BulletObject bullet : bulletArray) bullet.draw(main.batch);
         main.batch.end();
     }
 
@@ -88,6 +104,15 @@ public class GameScreen extends ScreenAdapter {
             if (!trashArray.get(i).isInFrame()) {
                 main.world.destroyBody(trashArray.get(i).body);
                 trashArray.remove(i--);
+            }
+        }
+    }
+
+    private void updateBullets() {
+        for (int i = 0; i < bulletArray.size(); i++) {
+            if (bulletArray.get(i).hasToBeDestroyed()) {
+                main.world.destroyBody(bulletArray.get(i).body);
+                bulletArray.remove(i--);
             }
         }
     }
