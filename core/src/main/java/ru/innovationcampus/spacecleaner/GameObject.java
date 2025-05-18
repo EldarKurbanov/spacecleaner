@@ -12,7 +12,7 @@ public class GameObject {
     public int width, height;
     protected Texture texture;
     public static final float SCALE = 0.05f;
-    protected Body body;
+    public Body body;
 
     public GameObject(String texturePath, int x, int y, int width, int height, World world) {
         this.width = width;
