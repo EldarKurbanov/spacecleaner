@@ -15,8 +15,10 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Box2D;
 import com.badlogic.gdx.physics.box2d.World;
 
+import ru.innovationcampus.spacecleaner.managers.AudioManager;
 import ru.innovationcampus.spacecleaner.screens.GameScreen;
 import ru.innovationcampus.spacecleaner.screens.MenuScreen;
+import ru.innovationcampus.spacecleaner.screens.SettingsScreen;
 import ru.innovationcampus.spacecleaner.view.FontBuilder;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
@@ -29,6 +31,8 @@ public class Main extends Game {
     public BitmapFont commonWhiteFont, largeWhiteFont, commonBlackFont;
     public GameScreen gameScreen;
     public MenuScreen menuScreen;
+    public AudioManager audioManager;
+    public SettingsScreen settingsScreen;
 
     @Override
     public void create() {
@@ -45,6 +49,9 @@ public class Main extends Game {
 
         gameScreen = new GameScreen(this);
         menuScreen = new MenuScreen(this);
+        settingsScreen = new SettingsScreen(this);
+
+        audioManager = new AudioManager();
 
         setScreen(menuScreen);
     }

@@ -65,7 +65,7 @@ public class MenuScreen extends ScreenAdapter {
             }
 
             if (settingsButtonView.isHit(main.touch.x, main.touch.y)) {
-                System.out.println("Go to settings Screen");
+                main.setScreen(main.settingsScreen);
             }
         }
     }

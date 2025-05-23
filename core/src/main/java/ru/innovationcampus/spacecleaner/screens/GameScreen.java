@@ -8,7 +8,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 
 import java.util.ArrayList;
 
-import ru.innovationcampus.spacecleaner.ContactManager;
+import ru.innovationcampus.spacecleaner.managers.ContactManager;
 import ru.innovationcampus.spacecleaner.GameResources;
 import ru.innovationcampus.spacecleaner.GameSession;
 import ru.innovationcampus.spacecleaner.GameSettings;
@@ -86,7 +86,7 @@ public class GameScreen extends ScreenAdapter {
                     main.world
                 );
                 bulletArray.add(laserBullet);
-            }
+                if (main.audioManager.isSoundOn) main.audioManager.shootSound.play();            }
 
             if (!shipObject.isAlive()) {
                 System.out.println("Game over!");
@@ -159,7 +159,13 @@ public class GameScreen extends ScreenAdapter {
 
     private void updateTrash() {
         for (int i = 0; i < trashArray.size(); i++) {
-            if (!trashArray.get(i).isInFrame() || !trashArray.get(i).isAlive()) {
+
+            boolean hasToBeDestroyed = !trashArray.get(i).isAlive() || !trashArray.get(i).isInFrame();
+
+            if (!trashArray.get(i).isAlive()) {
+                if (main.audioManager.isSoundOn) main.audioManager.explosionSound.play(0.2f);            }
+
+            if (hasToBeDestroyed) {
                 main.world.destroyBody(trashArray.get(i).body);
                 trashArray.remove(i--);
             }
