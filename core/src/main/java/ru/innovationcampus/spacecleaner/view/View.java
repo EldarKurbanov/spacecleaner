@@ -19,7 +19,7 @@ public class View implements Disposable {
     }
 
     public boolean isHit(float tx, float ty) {
-        return false;
+        return tx >= x && x + width >= tx && ty >= y && y + height >= ty;
     }
 
     public void draw(SpriteBatch batch) {
