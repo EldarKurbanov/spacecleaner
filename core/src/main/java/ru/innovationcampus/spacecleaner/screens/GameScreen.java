@@ -16,6 +16,11 @@ import ru.innovationcampus.spacecleaner.Main;
 import ru.innovationcampus.spacecleaner.objects.BulletObject;
 import ru.innovationcampus.spacecleaner.objects.ShipObject;
 import ru.innovationcampus.spacecleaner.objects.TrashObject;
+import ru.innovationcampus.spacecleaner.view.ButtonView;
+import ru.innovationcampus.spacecleaner.view.ImageView;
+import ru.innovationcampus.spacecleaner.view.LiveView;
+import ru.innovationcampus.spacecleaner.view.MovingBackgroundView;
+import ru.innovationcampus.spacecleaner.view.TextView;
 
 public class GameScreen extends ScreenAdapter {
     Main main;
@@ -24,12 +29,22 @@ public class GameScreen extends ScreenAdapter {
     ArrayList<TrashObject> trashArray;
     ArrayList<BulletObject> bulletArray;
     ContactManager contactManager;
+    MovingBackgroundView backgroundView;
+    ImageView topBlackoutView;
+    LiveView liveView;
+    TextView scoreTextView;
+    ButtonView pauseButton;
 
     public GameScreen(Main main) {
         this.main = main;
         trashArray = new ArrayList<>();
         bulletArray = new ArrayList<>();
         contactManager = new ContactManager(main.world);
+        backgroundView = new MovingBackgroundView(GameResources.BACKGROUND_IMG_PATH);
+        topBlackoutView = new ImageView(0, 1180, GameResources.BLACKOUT_TOP_IMG_PATH);
+        liveView = new LiveView(305, 1215);
+        scoreTextView = new TextView(main.commonWhiteFont, 50, 1215);
+        pauseButton = new ButtonView(605, 1200, 46, 54, GameResources.PAUSE_IMG_PATH);
     }
 
     @Override
@@ -47,6 +62,12 @@ public class GameScreen extends ScreenAdapter {
     @Override
     public void render(float delta) {
         super.render(delta);
+
+        scoreTextView.setText("Score: " + 100);
+
+        liveView.setLeftLives(shipObject.getLivesLeft());
+
+        backgroundView.move();
 
         main.stepWorld();
 
@@ -93,9 +114,14 @@ public class GameScreen extends ScreenAdapter {
         ScreenUtils.clear(Color.CLEAR);
 
         main.batch.begin();
+        backgroundView.draw(main.batch);
         shipObject.draw(main.batch);
         for (TrashObject trash : trashArray) trash.draw(main.batch);
         for (BulletObject bullet : bulletArray) bullet.draw(main.batch);
+        topBlackoutView.draw(main.batch);
+        scoreTextView.draw(main.batch);
+        liveView.draw(main.batch);
+        pauseButton.draw(main.batch);
         main.batch.end();
     }
 
