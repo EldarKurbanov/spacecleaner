@@ -43,6 +43,7 @@ public class GameScreen extends ScreenAdapter {
         this.main = main;
         trashArray = new ArrayList<>();
         bulletArray = new ArrayList<>();
+        gameSession = new GameSession();
         contactManager = new ContactManager(main.world);
         backgroundView = new MovingBackgroundView(GameResources.BACKGROUND_IMG_PATH);
         topBlackoutView = new ImageView(0, 1180, GameResources.BLACKOUT_TOP_IMG_PATH);
@@ -59,12 +60,7 @@ public class GameScreen extends ScreenAdapter {
     public void show() {
         super.show();
 
-        gameSession = new GameSession();
-        gameSession.startGame();
-
-        shipObject = new ShipObject(GameSettings.SCREEN_WIDTH / 2, 150,
-            GameSettings.SHIP_WIDTH, GameSettings.SHIP_HEIGHT,
-            GameResources.SHIP_IMG_PATH, main.world);
+        restartGame();
     }
 
     @Override
@@ -120,6 +116,12 @@ public class GameScreen extends ScreenAdapter {
                     break;
 
                 case PAUSED:
+                    if (continueButton.isHit(main.touch.x, main.touch.y)) {
+                        gameSession.resumeGame();
+                    }
+                    if (homeButton.isHit(main.touch.x, main.touch.y)) {
+                        main.setScreen(main.menuScreen);
+                    }
                     break;
             }
         }
@@ -171,5 +173,28 @@ public class GameScreen extends ScreenAdapter {
                 bulletArray.remove(i--);
             }
         }
+    }
+
+    private void restartGame() {
+
+        for (int i = 0; i < trashArray.size(); i++) {
+            main.world.destroyBody(trashArray.get(i).body);
+            trashArray.remove(i--);
+        }
+
+        if (shipObject != null) {
+            main.world.destroyBody(shipObject.body);
+        }
+
+        bulletArray.clear();
+
+        shipObject = new ShipObject(
+            GameSettings.SCREEN_WIDTH / 2, 150,
+            GameSettings.SHIP_WIDTH, GameSettings.SHIP_HEIGHT,
+            GameResources.SHIP_IMG_PATH,
+            main.world
+        );
+
+        gameSession.startGame();
     }
 }

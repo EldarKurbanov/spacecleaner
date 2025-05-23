@@ -16,6 +16,7 @@ import com.badlogic.gdx.physics.box2d.Box2D;
 import com.badlogic.gdx.physics.box2d.World;
 
 import ru.innovationcampus.spacecleaner.screens.GameScreen;
+import ru.innovationcampus.spacecleaner.screens.MenuScreen;
 import ru.innovationcampus.spacecleaner.view.FontBuilder;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
@@ -25,11 +26,15 @@ public class Main extends Game {
     public World world;
     float accumulator = 0;
     public Vector3 touch;
-    public BitmapFont commonWhiteFont;
+    public BitmapFont commonWhiteFont, largeWhiteFont, commonBlackFont;
+    public GameScreen gameScreen;
+    public MenuScreen menuScreen;
 
     @Override
     public void create() {
         commonWhiteFont = FontBuilder.generate(24, Color.WHITE, GameResources.FONT_PATH);
+        largeWhiteFont = FontBuilder.generate(48, Color.WHITE, GameResources.FONT_PATH);
+        commonBlackFont = FontBuilder.generate(24, Color.BLACK, GameResources.FONT_PATH);
 
         Box2D.init();
         world = new World(new Vector2(0, 0), true);
@@ -38,7 +43,10 @@ public class Main extends Game {
         orthographicCamera = new OrthographicCamera();
         orthographicCamera.setToOrtho(false, GameSettings.SCREEN_WIDTH, GameSettings.SCREEN_HEIGHT);
 
-        setScreen(new GameScreen(this));
+        gameScreen = new GameScreen(this);
+        menuScreen = new MenuScreen(this);
+
+        setScreen(menuScreen);
     }
 
     @Override
