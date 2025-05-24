@@ -7,6 +7,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 import ru.innovationcampus.spacecleaner.managers.ContactManager;
 import ru.innovationcampus.spacecleaner.GameResources;
@@ -14,6 +15,7 @@ import ru.innovationcampus.spacecleaner.GameSession;
 import ru.innovationcampus.spacecleaner.GameSettings;
 import ru.innovationcampus.spacecleaner.GameState;
 import ru.innovationcampus.spacecleaner.Main;
+import ru.innovationcampus.spacecleaner.managers.MemoryManager;
 import ru.innovationcampus.spacecleaner.objects.BulletObject;
 import ru.innovationcampus.spacecleaner.objects.ShipObject;
 import ru.innovationcampus.spacecleaner.objects.TrashObject;
@@ -21,6 +23,7 @@ import ru.innovationcampus.spacecleaner.view.ButtonView;
 import ru.innovationcampus.spacecleaner.view.ImageView;
 import ru.innovationcampus.spacecleaner.view.LiveView;
 import ru.innovationcampus.spacecleaner.view.MovingBackgroundView;
+import ru.innovationcampus.spacecleaner.view.RecordsListView;
 import ru.innovationcampus.spacecleaner.view.TextView;
 
 public class GameScreen extends ScreenAdapter {
@@ -39,6 +42,11 @@ public class GameScreen extends ScreenAdapter {
     ButtonView homeButton, continueButton;
     TextView pauseTextView;
 
+    // ENDED state UI
+    TextView recordsTextView;
+    RecordsListView recordsListView;
+    ButtonView homeButton2;
+
     public GameScreen(Main main) {
         this.main = main;
         trashArray = new ArrayList<>();
@@ -54,6 +62,16 @@ public class GameScreen extends ScreenAdapter {
         pauseTextView = new TextView(main.commonWhiteFont, 500, 1000, "Pause");
         homeButton = new ButtonView(10, 10, 160, 70, main.commonWhiteFont, GameResources.BUTTON_BACKGROUND_SHORT_IMG_PATH, "Home");
         continueButton = new ButtonView(10, 90, 160, 70, main.commonWhiteFont, GameResources.BUTTON_BACKGROUND_SHORT_IMG_PATH, "Continue");
+
+        recordsListView = new RecordsListView(main.commonWhiteFont, 690);
+        recordsTextView = new TextView(main.largeWhiteFont, 206, 842, "Last records");
+        homeButton2 = new ButtonView(
+            280, 365,
+            160, 70,
+            main.commonBlackFont,
+            GameResources.BUTTON_BACKGROUND_SHORT_IMG_PATH,
+            "Home"
+        );
     }
 
     @Override
@@ -89,13 +107,14 @@ public class GameScreen extends ScreenAdapter {
                 if (main.audioManager.isSoundOn) main.audioManager.shootSound.play();            }
 
             if (!shipObject.isAlive()) {
-                System.out.println("Game over!");
+                gameSession.endGame();
             }
 
             updateTrash();
             updateBullets();
             backgroundView.move();
-            scoreTextView.setText("Score: " + 100);
+            gameSession.updateScore();
+            scoreTextView.setText("Score: " + gameSession.getScore());
             liveView.setLeftLives(shipObject.getLivesLeft());
 
             main.stepWorld();
@@ -123,6 +142,11 @@ public class GameScreen extends ScreenAdapter {
                         main.setScreen(main.menuScreen);
                     }
                     break;
+                case ENDED:
+                    if (homeButton2.isHit(main.touch.x, main.touch.y)) {
+                        main.setScreen(main.menuScreen);
+                    }
+                    break;
             }
         }
     }
@@ -146,6 +170,11 @@ public class GameScreen extends ScreenAdapter {
             pauseTextView.draw(main.batch);
             homeButton.draw(main.batch);
             continueButton.draw(main.batch);
+        } else if (gameSession.state == GameState.ENDED) {
+            fullBlackoutView.draw(main.batch);
+            recordsTextView.draw(main.batch);
+            recordsListView.draw(main.batch);
+            homeButton2.draw(main.batch);
         }
         main.batch.end();
     }
@@ -163,7 +192,10 @@ public class GameScreen extends ScreenAdapter {
             boolean hasToBeDestroyed = !trashArray.get(i).isAlive() || !trashArray.get(i).isInFrame();
 
             if (!trashArray.get(i).isAlive()) {
-                if (main.audioManager.isSoundOn) main.audioManager.explosionSound.play(0.2f);            }
+                gameSession.destructionRegistration();
+                recordsListView.setRecords(Objects.requireNonNull(MemoryManager.loadRecordsTable()));
+                if (main.audioManager.isSoundOn) main.audioManager.explosionSound.play(0.2f);
+            }
 
             if (hasToBeDestroyed) {
                 main.world.destroyBody(trashArray.get(i).body);

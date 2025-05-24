@@ -6,8 +6,11 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ScreenUtils;
 
+import java.util.ArrayList;
+
 import ru.innovationcampus.spacecleaner.GameResources;
 import ru.innovationcampus.spacecleaner.Main;
+import ru.innovationcampus.spacecleaner.managers.MemoryManager;
 import ru.innovationcampus.spacecleaner.view.ButtonView;
 import ru.innovationcampus.spacecleaner.view.ImageView;
 import ru.innovationcampus.spacecleaner.view.MovingBackgroundView;
@@ -87,13 +90,16 @@ public class SettingsScreen extends ScreenAdapter {
                 resetRecords.setText("clear records (cleared)");
             }
             if (music.isHit(main.touch.x, main.touch.y)) {
-                main.audioManager.isMusicOn = !main.audioManager.isMusicOn;
-                music.setText("music: " + translateStateToText(main.audioManager.isMusicOn));
+                MemoryManager.saveMusicSettings(!MemoryManager.loadIsMusicOn());
+                music.setText("music: " + translateStateToText(MemoryManager.loadIsMusicOn()));
                 main.audioManager.updateMusicFlag();
             }
             if (sound.isHit(main.touch.x, main.touch.y)) {
-                main.audioManager.isSoundOn = !main.audioManager.isSoundOn;
-                sound.setText("sound: " + translateStateToText(main.audioManager.isSoundOn));
+                MemoryManager.saveSoundSettings(!MemoryManager.loadIsSoundOn());
+                sound.setText("sound: " + translateStateToText(MemoryManager.loadIsMusicOn()));
+            }
+            if (resetRecords.isHit(main.touch.x, main.touch.y)) {
+                MemoryManager.saveTableOfRecords(new ArrayList<>());
             }
         }
     }
